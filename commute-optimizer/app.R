@@ -199,7 +199,7 @@ ui <- dashboardPage(
                                                                     column(6,
                                                                            selectInput("selected_lines", "Lines: ", 
                                                                                              choices = c("1/2/3", "4/5/6", "A/C/E", "B/D/F/M", "N/Q/R", 
-                                                                                                         "7", "G", "L"), multiple = TRUE,
+                                                                                                         "7", "G", "L", "J/Z"), multiple = TRUE,
                                                                                              selected =  c(  "A/C/E", "G", "N/Q/R", "L"))
                                                                     ),
                                                                     column(6,
@@ -380,6 +380,23 @@ ui <- dashboardPage(
                                                             actionButton("info_g", icon("info"))
                                                    ) 
                                             )
+                                         ),
+                                         conditionalPanel(
+                                               condition = "output.include_jz",
+                                               column(12, 
+                                                      fluidRow(width = 15, 
+                                                               column(width = 3,
+                                                                      imageOutput("svg_j", width = 50, height = 50)
+                                                                      
+                                                               ),
+                                                               column(width = 3,
+                                                                      imageOutput("svg_z", width = 50, height = 50)
+                                                                      
+                                                               ),
+                                                               valueBoxOutput('infoBox_jz', width = 12),
+                                                               actionButton("info_jz", icon("info"))
+                                                      ) 
+                                               )
                                          ),
                                          
                                          p("Live data scraped from MTA.org. Availability of delay information subject to API status.")
@@ -581,6 +598,22 @@ server <- function(input, output, session) {
                  height = 50,
                  alt = "")
       }, deleteFile = FALSE)
+      output$svg_j <- renderImage({
+            # Return a list containing the filename
+            list(src = "./data/svg/j.svg",
+                 contentType = 'image/svg+xml',
+                 width = 50,
+                 height = 50,
+                 alt = "")
+      }, deleteFile = FALSE)
+      output$svg_z <- renderImage({
+            # Return a list containing the filename
+            list(src = "./data/svg/z.svg",
+                 contentType = 'image/svg+xml',
+                 width = 50,
+                 height = 50,
+                 alt = "")
+      }, deleteFile = FALSE)
       
       
       
@@ -707,6 +740,21 @@ server <- function(input, output, session) {
                   color = "red"
             }
             valueBox(value = tags$p(status.g, style = "font-size: 20px;"), NULL, color = color )
+      })
+      output$infoBox_jz <- renderValueBox({
+            # get status
+            status.jz = (mta.status %>% filter(name == "JZ"))$status
+            
+            if(status.jz == "GOOD SERVICE"){
+                  color = "green"
+            }
+            else if (status.jz == "PLANNED WORK"){
+                  color = "orange"  
+            }
+            else{
+                  color = "red"
+            }
+            valueBox(value = tags$p(status.jz, style = "font-size: 20px;"), NULL, color = color )
       })
       
       
@@ -983,6 +1031,17 @@ server <- function(input, output, session) {
       observeEvent(input$info_7, {
             
             text = convert_html_to_text((mta.status %>% filter(name == "7"))$text)
+            
+            showModal(modalDialog(
+                  title = "Delays Update",
+                  text,
+                  easyClose = TRUE,
+                  footer = NULL
+            ))
+      })
+      observeEvent(input$info_jz, {
+            
+            text = convert_html_to_text((mta.status %>% filter(name == "JZ"))$text)
             
             showModal(modalDialog(
                   title = "Delays Update",

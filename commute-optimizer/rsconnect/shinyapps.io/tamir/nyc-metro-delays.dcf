@@ -5,9 +5,9 @@ account: tamir
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 237357
-bundleId: 1084246
+bundleId: 1084339
 url: https://tamir.shinyapps.io/nyc-metro-delays/
-when: 1511103737.8789
+when: 1511110018.41004
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: parse_xml.Rmd|data/statuses.csv|data/statuses.xml|data/Subway Lines.geojson|data/turnstile.xlsx
+ignoredFiles: parse_xml.Rmd|data/statuses.csv|data/statuses.xml|data/turnstile.xlsx
