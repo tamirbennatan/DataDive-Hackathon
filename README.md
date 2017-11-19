@@ -8,6 +8,8 @@ I worked on this project alone, and so there was only so much I could do in 36 h
 The Subway operations are unpredictable, but if we crowdsource our data effectively, perhaps we can all avoid delays together.
 
 
+![](screenshot.png)
+
 This competiton was a lot of fun. Thanks DataDive folk!
 
 -Tamir
