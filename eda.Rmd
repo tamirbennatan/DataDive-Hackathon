@@ -1,0 +1,183 @@
+---
+title: "EDA"
+---
+```{R}
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(openxlsx)
+library(fuzzyjoin)
+library(openxlsx)
+library(stringr)
+```
+
+
+
+### 0. Load Data
+
+#### 0.1 Uber data
+```{R}
+uber.april = read.csv("Transportation/NYC Uber-Taxi Data/NYC Uber - 2014/uber-raw-data-apr14.csv")
+```
+```{R}
+head(uber.april)
+```
+This data is shows the time of pickup, coordinates, and the area (base)
+
+#### 0.1 Taxi data
+```{R}
+taxi.april = read.csv("Transportation/NYC Uber-Taxi Data/NYC Taxi /yellow_tripdata_2014-04.csv")
+```
+```{R}
+head(taxi.april)
+```
+
+#### 0.2 NYC Subway Data
+
+First, a dimension table for the subway stops
+```{R}
+subway.stops = read.xlsx("Transportation/NYC Subway Data/nyc-subway-turnstile-and-weather.csv.xlsx")
+head(subway.stops)
+```
+
+Also, data on NYC metro trips
+
+```{R}
+subway.stations <- read.csv("Transportation/NYC Subway Data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+```
+```{R}
+head(subway.stations)
+dim(subway.stations)
+```
+
+
+### 1. Relationship between pickups of Taxis, Ubers and Subway stations
+
+```{R}
+head(uber.april)
+```
+```{R}
+head(subway.stops)
+```
+
+
+### 2. Turstile data
+```{R}
+turnstile.data <- read.xlsx("commute-optimizer/data/turnstile.xlsx")
+```
+
+```{R}
+dim(turnstile.data)
+turnstile.data
+```
+
+```{R}
+turnstile.data = turnstile.data %>%
+      select(station,DATE,ENTRIES_hourly, hour, day_week) %>%
+      mutate(DATE = mdy(str_pad(DATE, width = 6, side = "left", pad = "0"))) %>%
+      arrange(desc(DATE)) %>%
+      filter(year(DATE) < 2020 & year(DATE) > 1985) %>%
+      group_by(station,DATE,hour,day_week) %>%
+      summarize(entries = sum(ENTRIES_hourly)) %>%
+      arrange(desc(year(DATE)))
+
+```
+
+```{R}
+turnstile.data
+```
+
+```{R}
+turnstile.data %>%
+  group_by(day_of_week, hour) %>%
+  summarise(average.entries = mean(entries)) %>%
+  ggplot(aes(hour, day_of_week, fill = average.entries)) +
+  geom_tile() +
+  labs(x = "Hour of the day", y = "Day of the week") +
+  scale_fill_distiller(palette = "Spectral")
+
+```
+
+
+
+```{R}
+days_me = factor(c("Tuesday", 
+         "Wednesday", 
+         "Thursday", 
+         "Friday", 
+         "Saturday", 
+         "Sunday", 
+         "Monday"), levels = c("Tuesday", 
+         "Wednesday", 
+         "Thursday", 
+         "Friday", 
+         "Saturday", 
+         "Sunday", 
+         "Monday"))
+
+turnstile.data = turnstile.data %>% mutate(day_of_week = days_me[(day_week + 1)])
+
+```
+
+```{R}
+write.csv(turnstile.data, "commute-optimizer/data/turnstiles_agg.csv")
+
+```
+
+```{R}
+turnstile.data %>% 
+      group_by(station,hour) %>%
+      mutate(average.entries = mean(entries)) %>%
+      ungroup() %>%
+      group_by(station) %>% 
+      arrange(desc(average.entries)) %>%
+      filter(row_number() == 1) %>%
+      ungroup() %>%
+      mutate(Peak.Hour = paste(hour, ":00", sep = "")) %>%
+      select(station,Peak.Hour)
+
+```
+```{R}
+turnstile.data %>%
+      filter(station == "34 ST-HERALD SQ")  %>%
+      group_by(hour) %>%
+      summarize(avg.entries = mean(entries)) %>%
+      arrange(desc(avg.entries))
+
+```
+
+```{R}
+selected_stations = c("BUSHWICK AVE", "215 ST")
+
+selected.data = turnstile.data %>%
+      filter(station %in% selected_stations)
+#add (if nrow(selected.data) > 0
+
+p2 <- selected.data %>%
+  ggplot(aes(hour, entries, color = station)) +
+  geom_smooth() +
+  labs(x = "Hour of the day", y = "Median Number of Entries") 
+
+p2
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,106 @@
+---
+title: "Parse XML"
+---
+
+```{R}
+library(dplyr)
+library(rvest)
+library(XML)
+```
+```{R}
+link = "http://web.mta.info/status/serviceStatus.txt"
+```
+
+```{R}
+mta.status = read_xml(link)
+
+xml_find_all(mta.status, ".//line")
+```
+```{R}
+statuses = data.frame( name = character(), 
+                     status = character(), 
+                     text = character())
+
+print(xml_find_first(xml_find_all(mta.status, ".//line")[1], "text"))
+
+getNodeSet(a,'//table[@class="ultra_grid"]')
+
+
+```
+
+```{R}
+for (i in 1:(length(xml_find_all(mta.status, ".//line")))){
+      name = xml_text(xml_find_first(xml_find_all(mta.status, ".//line")[i], "name"))
+      status = xml_text(xml_find_first(xml_find_all(mta.status, ".//line")[i], "status"))
+      
+      xpathSApply(xml_find_first(xml_find_all(mta.status, ".//line")[i], "text"), "plannedWorkDetailLink")
+      
+      text = xml_text(xml_find_first(xml_find_all(mta.status, ".//line")[i], "text"))
+      
+      statuses = rbind(statuses, data_frame(name = name, status = status, text = text))
+      
+}
+```
+
+
+
+
+
+
+
+```{R}
+  convert_html_to_text <- function(html) {
+    doc <- htmlParse(html, asText = TRUE)
+    text <- xpathSApply(doc, "//text()[not(ancestor::script)][not(ancestor::style)][not(ancestor::noscript)][not(ancestor::form)]", xmlValue)
+    return(text)
+  }
+
+
+ collapse_text <- function(txt) {
+    return(paste(txt, collapse = " "))
+ }
+
+```
+```{R}
+a = statuses %>% filter(
+
+collapse_text(convert_html_to_text(a))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
