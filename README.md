@@ -16,4 +16,4 @@ This competiton was a lot of fun. Thanks DataDive folk!
 
 ---
 
-[1] Disclaimer: I was in a rush to implement functionality over the competition, and did not spend time worrying about my code aestetics.
+[1] Disclaimer: I was in a rush to implement functionality over the competition, and did not spend time worrying about my code aesthetics.
